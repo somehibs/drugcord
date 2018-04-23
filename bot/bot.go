@@ -72,7 +72,7 @@ func (b *Bot) Run() (e error) {
 	// Get the configuration we're going to use.
 	c := GetConf()
 	b.c = &c
-	fmt.Printf("e: %s p: %s t: %s\n", c.Email, c.Password, c.Token)
+	//fmt.Printf("e: %s p: %s t: %s\n", c.Email, c.Password, c.Token)
 	fmt.Println("Initializing Discord session object.")
 	b.discord, e = discordgo.New(c.Email, c.Password, c.Token)
 	if e != nil {
