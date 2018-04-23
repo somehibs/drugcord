@@ -36,7 +36,7 @@ func onMessageCreate(s *discordgo.Session, mc *discordgo.MessageCreate) {
 	}
 }
 
-func StripContent(m *discordgo.Message) (content string) {
+func StripMentions(m *discordgo.Message) (content string) {
 	content = m.Content
 	for _, u := range m.Mentions {
 		content = strings.NewReplacer("<@"+u.ID+">", "", "<@!"+u.ID+">", "").Replace(content)
@@ -48,7 +48,7 @@ func (b *Bot) processMessage(m *discordgo.Message) {
 	// Every message contains the following entities
 	// ChannelID, Timestamp, Content, EditedTimestamp, Tts, MentionEveryone, Attachments, Embeds, Mentions, Reactions, Type, ID
 	// Read the content and return the drug formatted badly
-	sm := StripContent(m)
+	sm := StripMentions(m)
 	fmt.Println(sm)
 	sm = strings.Map(func(r rune) rune {
 		if unicode.IsSpace(r) {
@@ -57,7 +57,11 @@ func (b *Bot) processMessage(m *discordgo.Message) {
 		return r
 	}, sm)
 	d := tripapi.GetDrug(sm)
-	fmt.Printf("Found drug %+v\n", d)
+	if d != nil {
+		// Found a drug, format it
+	} else {
+		// Didn't recognise it
+	}
 }
 
 func (b *Bot) addHandlers() {
