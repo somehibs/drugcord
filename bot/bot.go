@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/somehibs/tripapi/api"
-	"regexp"
 	"strings"
 	"unicode"
 )
@@ -25,8 +24,6 @@ var bot = Bot{ready: false, discord: nil}
 func onReady(s *discordgo.Session, event *discordgo.Ready) {
 	fmt.Println("Bot is now READY.")
 }
-
-var mentionSyntax, _ = regexp.Compile("(\\<\\@[0-9]+\\>)+")
 
 func onMessageCreate(s *discordgo.Session, mc *discordgo.MessageCreate) {
 	m := mc.Message
