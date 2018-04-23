@@ -7,9 +7,9 @@ import (
 // Define an interface for formattable types.
 // This is good for translating from JSON into lazy maps.
 type Formattable interface {
-	Fields() map[string]string
-	TableFields() *[]map[string]string
-	ComplexFields() *[]map[string]map[string]string
+	Fields() *map[string]string
+	TableFields() map[string]map[string]string
+	ComplexFields() *map[string]map[string]string
 }
 
 // Define interfaces for formatters.
@@ -29,7 +29,7 @@ type DiscordFormatter struct {
 }
 
 func (df *DiscordFormatter) FormatFields(f Formattable) (ret string) {
-	for k, v := range f.Fields() {
+	for k, v := range *f.Fields() {
 		ret += fmt.Sprintf("%s %s", k, v)
 	}
 	return
