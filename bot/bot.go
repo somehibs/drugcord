@@ -2,11 +2,11 @@ package drugcord
 
 import (
 	"fmt"
-	"strings"
-	"unicode"
-	"regexp"
 	"github.com/bwmarrin/discordgo"
 	"github.com/somehibs/tripapi/api"
+	"regexp"
+	"strings"
+	"unicode"
 )
 
 type BotMain interface {
@@ -15,18 +15,18 @@ type BotMain interface {
 }
 
 type Bot struct {
-	ready bool
+	ready   bool
 	discord *discordgo.Session
-	c *BotConfig
+	c       *BotConfig
 }
 
-var bot = Bot{ready:false,discord:nil}
+var bot = Bot{ready: false, discord: nil}
 
 func onReady(s *discordgo.Session, event *discordgo.Ready) {
 	fmt.Println("Bot is now READY.")
 }
 
-var mentionSyntax, _= regexp.Compile("(\\<\\@[0-9]+\\>)+")
+var mentionSyntax, _ = regexp.Compile("(\\<\\@[0-9]+\\>)+")
 
 func onMessageCreate(s *discordgo.Session, mc *discordgo.MessageCreate) {
 	m := mc.Message
@@ -90,6 +90,6 @@ func (b *Bot) Run() (e error) {
 func (b *Bot) Connect() {
 }
 
-func NewBot() (*Bot) {
+func NewBot() *Bot {
 	return &bot
 }

@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/somehibs/drugcord/bot"
+	_ "github.com/somehibs/tripapi/api"
 	"os"
 	"os/signal"
-	"github.com/somehibs/drugcord/bot"
-	_"github.com/somehibs/tripapi/api"
 )
 
 func main() {
@@ -18,5 +18,5 @@ func main() {
 		signal.Notify(sigChan, os.Interrupt, os.Kill)
 		<-sigChan
 	}
-//	fmt.Println(tripapi.GetDrug("molly"))
+	//	fmt.Println(tripapi.GetDrug("molly"))
 }

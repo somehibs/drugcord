@@ -6,7 +6,7 @@ import (
 
 type FatalError struct {
 	Cause error
-	Msg string
+	Msg   string
 }
 
 func (f FatalError) Error() string {

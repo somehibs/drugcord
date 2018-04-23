@@ -1,31 +1,31 @@
 package drugcord
 
 import (
-	_"fmt"
+	_ "fmt"
 	"github.com/micro/go-config"
-	"github.com/micro/go-config/source/file"
 	"github.com/micro/go-config/source/envvar"
+	"github.com/micro/go-config/source/file"
 	"github.com/micro/go-config/source/flag"
 )
 
 type PrometheusConfig struct {
-	Host string
-	Port int
+	Host    string
+	Port    int
 	Enabled bool
 }
 
 // Need an initial request, auth by
 type DiscordServer struct {
-	InitialRequest string
+	InitialRequest  string
 	AuthenticatedBy string
 }
 
 type BotConfig struct {
-	ID string `json:"id"`
-	Token string
-	Email string
-	Password string
-	Prometheus PrometheusConfig
+	ID             string `json:"id"`
+	Token          string
+	Email          string
+	Password       string
+	Prometheus     PrometheusConfig
 	DiscordServers []DiscordServer `json:"discord_servers"`
 }
 
