@@ -20,15 +20,24 @@ type Bot struct {
 	cmd     CommandRouter
 }
 
-var bot = Bot{ready: false, discord: nil}
-
 const cmdChar = '!'
+
+var bots = map[*discordgo.Session]*Bot{}
 
 func onReady(s *discordgo.Session, event *discordgo.Ready) {
 	fmt.Println("Bot is now READY.")
 }
 
+func botFromSession(s *discordgo.Session) *Bot {
+	return bots[s]
+}
+
 func onMessageCreate(s *discordgo.Session, mc *discordgo.MessageCreate) {
+	bot := botFromSession(s)
+	if bot == nil {
+		fmt.Printf("Could not find bot for session %+v\n", s)
+		return
+	}
 	m := mc.Message
 	//fmt.Printf("Message received %+v\n", m)
 	if m.Content[0] == cmdChar {
@@ -103,6 +112,7 @@ func (b *Bot) Run() (e error) {
 	if e != nil {
 		return Fatal(e, "Couldn't open a Discord session.")
 	}
+	bots[b.discord] = b
 
 	return nil
 }
@@ -110,8 +120,12 @@ func (b *Bot) Run() (e error) {
 func NewBot() *Bot {
 	// Get the configuration we're going to use, init other things.
 	c := GetConf()
+	bot := Bot{ready: false, discord: nil}
 	bot.c = &c
+
+	// Handle some commands with a router
 	bot.cmd = CommandRouter{Handler: bot}
+
 	bot.cmd.RegisterCommands(DrugCommands)
 	return &bot
 }
