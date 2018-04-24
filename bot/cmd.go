@@ -82,7 +82,6 @@ func (cr *CommandRouter) RegisterGlobals(globals []GlobalCommand) {
 
 // We expect that you'll have stripped any protocol spaces and jargon so we can parse some plain text.
 func (cr *CommandRouter) HandleMessage(handler CommandHandler, message *MessageInput) {
-	fmt.Printf("%+v\n", handler)
 	responses := cr.handleMessageImpl(message)
 	if len(responses) > 0 {
 		handler.SendAll(responses)

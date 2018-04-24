@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var DrugCommands = map[string]Command{"drug": DrugCmd{}}
+var DrugCommands = map[string]Command{"drug": DrugCmd{DiscordFormatter{}}}
 
 type DrugCmd struct {
 	Formatter Formatter
@@ -20,13 +20,12 @@ func (d DrugCmd) Action(command *MessageInput) (response []CommandResponse) {
 	if command == nil {
 		panic("Cannot see command?")
 	}
-	fmt.Printf("Command: %+v\n", command)
 	drugName := command.Split[1]
 	drug := tripapi.GetDrug(drugName)
 
 	if drug != nil && d.Formatter != nil {
 		// Format the drug with a nonexistent formatter.
-		d.Formatter.FormatAll(drug)
+		response = append(response, CommandResponse{command, []string{d.Formatter.FormatAll(drug)}, TargetSameChannel})
 	} else if d.Formatter == nil {
 		response = append(response, CommandResponse{command, []string{"Formatter doesn't exist (error)."}, TargetSameChannel})
 	} else {

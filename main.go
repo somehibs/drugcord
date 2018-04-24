@@ -23,9 +23,9 @@ func main() {
 	if err != nil {
 		fmt.Printf("%s\n", err)
 	} else {
-		_, e := testBot.Discord.ChannelMessageSend("438143058807357470", "!drug mdma")
+		_, e := testBot.Discord.ChannelMessageSend("334458647788912640", "!drug mdma")
 		if e != nil {
-			fmt.Printf("%s\n", e)
+			fmt.Printf("couldn't send using testbot %s\n", e)
 		}
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, os.Interrupt, os.Kill)
