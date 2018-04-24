@@ -6,11 +6,15 @@ import (
 )
 
 // Types and structs for routing bot commands.
-const TargetNone = 0         // Only log the Reply (if there is one).
-const TargetRequestor = 1    // Only respond to the user who requested this by PM.
-const TargetSameChannel = 2  // Only respond to the channel this message was posted in.
-const TargetAdminChannel = 3 // Only tell the admins about this.
-const TargetOtherChannel = 4 // Target a specific channel, specified out of band.
+type Target int32
+
+const (
+	TargetNone         Target = 0 // Only log the Reply (if there is one).
+	TargetRequestor    Target = 1 // Only respond to the user who requested this by PM.
+	TargetSameChannel  Target = 2 // Only respond to the channel this message was posted in.
+	TargetAdminChannel Target = 3 // Only tell the admins about this.
+	TargetOtherChannel Target = 4 // Target a specific channel, specified out of band.
+)
 
 // Implement this to receive responses from CommandRouter
 type CommandHandler interface {
@@ -21,13 +25,12 @@ type CommandHandler interface {
 type CommandRouter struct {
 	globals  []GlobalCommand
 	commands map[string]Command
-	Handler  CommandHandler
 }
 
 type CommandResponse struct {
-	OriginalMessage MessageInput
-	Reply           []string
-	Target          int32
+	Input  *MessageInput
+	Reply  []string
+	Target Target
 }
 
 // Command should be a slice of space separated words
@@ -37,9 +40,9 @@ type GlobalCommand interface {
 }
 
 type MessageInput struct {
-	OriginalMessage interface{}
-	Content         string
-	Split           []string
+	Original interface{}
+	Content  string
+	Split    []string
 }
 
 func (m MessageInput) SplitImpl() []string {
@@ -78,14 +81,11 @@ func (cr *CommandRouter) RegisterGlobals(globals []GlobalCommand) {
 }
 
 // We expect that you'll have stripped any protocol spaces and jargon so we can parse some plain text.
-func (cr *CommandRouter) HandleMessage(message *MessageInput) {
-	if cr.Handler == nil {
-		fmt.Println("Cannot handle a message when there's no response handler.")
-		return
-	}
+func (cr *CommandRouter) HandleMessage(handler CommandHandler, message *MessageInput) {
+	fmt.Printf("%+v\n", handler)
 	responses := cr.handleMessageImpl(message)
 	if len(responses) > 0 {
-		cr.Handler.SendAll(responses)
+		handler.SendAll(responses)
 	} else {
 		fmt.Printf("No responses for message %s\n", message.Content)
 	}

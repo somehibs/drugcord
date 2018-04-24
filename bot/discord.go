@@ -3,7 +3,6 @@ package drugcord
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	_ "github.com/somehibs/tripapi/api"
 	"strings"
 	"unicode"
 )
@@ -23,6 +22,8 @@ type Bot struct {
 const cmdChar = '!'
 
 var bots = map[*discordgo.Session]*Bot{}
+var firstbot *Bot = nil
+var secondbot *Bot = nil
 
 func onReady(s *discordgo.Session, event *discordgo.Ready) {
 	fmt.Println("Bot is now READY.")
@@ -39,7 +40,7 @@ func onMessageCreate(s *discordgo.Session, mc *discordgo.MessageCreate) {
 		return
 	}
 	m := mc.Message
-	//fmt.Printf("Message received %+v\n", m)
+	fmt.Printf("Message received %+v\n", m)
 	if m.Content[0] == cmdChar {
 		bot.processMessage(m)
 		return
@@ -72,35 +73,59 @@ func StripSpace(s string) string {
 	}, s)
 }
 
-func (b *Bot) processMessage(m *discordgo.Message) {
+func (b Bot) processMessage(m *discordgo.Message) {
 	// Every message contains the following entities
 	// ChannelID, Timestamp, Content, EditedTimestamp, Tts, MentionEveryone, Attachments, Embeds, Mentions, Reactions, Type, ID
 	if m.Content[0] == cmdChar {
 		m.Content = m.Content[1:]
 	}
 	fmt.Printf("Beginning to process: %s\n", m.Content)
-	input := MessageInput{OriginalMessage: m, Content: m.Content}
-	go b.cmd.HandleMessage(&input)
+	input := MessageInput{Original: m, Content: m.Content}
+	go b.cmd.HandleMessage(b, &input)
 }
 
-func (b *Bot) addHandlers() {
+func (b Bot) addHandlers() {
 	b.discord.AddHandler(onReady)
 	b.discord.AddHandler(onMessageCreate)
 }
 
-func (b Bot) Send(responses CommandResponse) {
+func (b Bot) Send(response CommandResponse) {
+	// Find out who to send it to
+	if &b == firstbot {
+		fmt.Println("It's myself")
+	} else {
+		fmt.Println("It's not me !!!!!myself")
+	}
+	m := response.Input.Original.(*discordgo.Message)
+	message := strings.Join(response.Reply, "")
+	//msg := discordgo.MessageSend{Content: message}
+	switch response.Target {
+	case TargetAdminChannel:
+	case TargetOtherChannel:
+	case TargetNone:
+	default:
+		fmt.Printf("Target: %s will not receive %s", message)
+	case TargetRequestor:
+	case TargetSameChannel:
+		fmt.Printf("Sending to channel %s\n", m.ChannelID)
+		v, e := b.discord.ChannelMessageSend(m.ChannelID, message)
+		if e != nil {
+			fmt.Printf("Error %+v\n\n", v, e)
+		}
+		//fmt.Printf("Sent: %+v %+v\n\n", v, e)
+	}
+	fmt.Printf("Send %s to %s\n", message, response.Target)
 }
 
 func (b Bot) SendAll(responses []CommandResponse) {
-	for response := range responses {
-		fmt.Println("Response %s", response)
+	for _, response := range responses {
+		b.Send(response)
 	}
 }
 
-func (b *Bot) Run() (e error) {
-	//fmt.Printf("e: %s p: %s t: %s\n", c.Email, c.Password, c.Token)
+func (b Bot) Run() (e error) {
 	fmt.Println("Initializing Discord session object.")
-	b.discord, e = discordgo.New(b.c.Email, b.c.Password, b.c.Token)
+	b.discord, e = discordgo.New(b.c.Token)
 	if e != nil {
 		return Fatal(e, "Couldn't init Discord session obj.")
 	}
@@ -112,7 +137,13 @@ func (b *Bot) Run() (e error) {
 	if e != nil {
 		return Fatal(e, "Couldn't open a Discord session.")
 	}
-	bots[b.discord] = b
+	bots[b.discord] = &b
+	firstbot = &b
+
+	// Handle some commands with a router
+	b.cmd = CommandRouter{}
+
+	b.cmd.RegisterCommands(DrugCommands)
 
 	return nil
 }
@@ -123,9 +154,5 @@ func NewBot() *Bot {
 	bot := Bot{ready: false, discord: nil}
 	bot.c = &c
 
-	// Handle some commands with a router
-	bot.cmd = CommandRouter{Handler: bot}
-
-	bot.cmd.RegisterCommands(DrugCommands)
 	return &bot
 }

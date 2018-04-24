@@ -27,6 +27,10 @@ func (d DrugCmd) Action(command *MessageInput) (response []CommandResponse) {
 	if drug != nil && d.Formatter != nil {
 		// Format the drug with a nonexistent formatter.
 		d.Formatter.FormatAll(drug)
+	} else if d.Formatter == nil {
+		response = append(response, CommandResponse{command, []string{"Formatter doesn't exist (error)."}, TargetSameChannel})
+	} else {
+		response = append(response, CommandResponse{command, []string{fmt.Sprintf("Could not find drug %s", drugName)}, TargetSameChannel})
 	}
 
 	return response
