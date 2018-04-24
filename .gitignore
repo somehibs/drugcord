@@ -17,4 +17,4 @@
 # tripapi caches
 caches/
 # users config file
-config.json
+*config.json

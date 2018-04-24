@@ -10,6 +10,7 @@ import (
 type Bot struct {
 	ready   bool
 	discord *discordgo.Session
+	Discord *discordgo.Session
 	c       *BotConfig
 	cmd     CommandRouter
 }
@@ -20,7 +21,8 @@ var bots = map[*discordgo.Session]*Bot{}
 var firstbot *Bot = nil
 
 func onReady(s *discordgo.Session, event *discordgo.Ready) {
-	fmt.Println("Bot is now READY.")
+	b := bots[s]
+	fmt.Printf("Bot ready: %s\n", b.c.ID)
 }
 
 func botFromSession(s *discordgo.Session) *Bot {
@@ -120,6 +122,7 @@ func (b Bot) SendAll(responses []CommandResponse) {
 func (b *Bot) Connect() (e error) {
 	fmt.Println("Initializing Discord session object.")
 	b.discord, e = discordgo.New(b.c.Token)
+	b.Discord = b.discord
 	if e != nil {
 		return Fatal(e, "Couldn't init Discord session obj.")
 	}
