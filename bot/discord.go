@@ -7,11 +7,6 @@ import (
 	"unicode"
 )
 
-type BotMain interface {
-	Run() error
-	Connect()
-}
-
 type Bot struct {
 	ready   bool
 	discord *discordgo.Session
@@ -23,7 +18,6 @@ const cmdChar = '!'
 
 var bots = map[*discordgo.Session]*Bot{}
 var firstbot *Bot = nil
-var secondbot *Bot = nil
 
 func onReady(s *discordgo.Session, event *discordgo.Ready) {
 	fmt.Println("Bot is now READY.")
@@ -123,7 +117,7 @@ func (b Bot) SendAll(responses []CommandResponse) {
 	}
 }
 
-func (b Bot) Run() (e error) {
+func (b *Bot) Connect() (e error) {
 	fmt.Println("Initializing Discord session object.")
 	b.discord, e = discordgo.New(b.c.Token)
 	if e != nil {
@@ -137,20 +131,18 @@ func (b Bot) Run() (e error) {
 	if e != nil {
 		return Fatal(e, "Couldn't open a Discord session.")
 	}
-	bots[b.discord] = &b
-	firstbot = &b
+	bots[b.discord] = b
+	firstbot = b
 
 	// Handle some commands with a router
 	b.cmd = CommandRouter{}
-
 	b.cmd.RegisterCommands(DrugCommands)
 
 	return nil
 }
 
-func NewBot() *Bot {
+func NewBot(c BotConfig) *Bot {
 	// Get the configuration we're going to use, init other things.
-	c := GetConf()
 	bot := Bot{ready: false, discord: nil}
 	bot.c = &c
 

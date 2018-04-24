@@ -8,9 +8,17 @@ import (
 	"os/signal"
 )
 
+const testBotEnabled = false
+
 func main() {
 	// Load bot instance
-	err := drugcord.NewBot().Run()
+	if testBotEnabled {
+		testBot := drugcord.NewBot(drugcord.BotConfig{Token: "Bot UNKNOWN"})
+		testBot.Connect()
+	}
+
+	bot := drugcord.NewBot(drugcord.GetConf())
+	err := bot.Connect()
 	if err != nil {
 		fmt.Printf("%s\n", err)
 	} else {

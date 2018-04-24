@@ -30,8 +30,12 @@ type BotConfig struct {
 }
 
 func GetConf() BotConfig {
+	return GetConfByName("./config.json")
+}
+
+func GetConfByName(filename string) BotConfig {
 	var conf = config.NewConfig()
-	conf.Load(envvar.NewSource(), flag.NewSource(), file.NewSource(file.WithPath("./config.json")))
+	conf.Load(envvar.NewSource(), flag.NewSource(), file.NewSource(file.WithPath(filename)))
 	var botConf = BotConfig{}
 	conf.Get().Scan(&botConf)
 	return botConf
