@@ -23,13 +23,18 @@ func (d DrugCmd) Action(command *MessageInput) (response []CommandResponse) {
 	drugName := command.Split[1]
 	drug := tripapi.GetDrug(drugName)
 
+	reply := []string{}
 	if drug != nil && d.Formatter != nil {
 		// Format the drug with a nonexistent formatter.
-		response = append(response, CommandResponse{command, []string{d.Formatter.FormatAll(drug)}, TargetSameChannel})
+		reply = append(reply, "`drug` "+drug.PrettyName)
+		reply = append(reply, d.Formatter.FormatAll(drug))
 	} else if d.Formatter == nil {
-		response = append(response, CommandResponse{command, []string{"Formatter doesn't exist (error)."}, TargetSameChannel})
+		reply = []string{"Formatter doesn't exist (error)."}
 	} else {
-		response = append(response, CommandResponse{command, []string{fmt.Sprintf("Could not find drug %s", drugName)}, TargetSameChannel})
+		reply = []string{fmt.Sprintf("Could not find drug %s", drugName)}
+	}
+	if len(reply) > 0 {
+		response = append(response, CommandResponse{command, reply, TargetSameChannel})
 	}
 
 	return response

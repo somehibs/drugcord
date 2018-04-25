@@ -24,7 +24,7 @@ var firstbot *Bot = nil
 func onReady(s *discordgo.Session, event *discordgo.Ready) {
 	b := bots[s]
 	if b == nil {
-
+		fmt.Println("Couldn't find myself in bot list...")
 	}
 	fmt.Printf("Bot ready: %s\n", b.c.ID)
 }
@@ -95,7 +95,7 @@ func (b Bot) addHandlers() {
 func (b Bot) Send(response CommandResponse) {
 	// Find out who to send it to
 	m := response.Input.Original.(*discordgo.Message)
-	message := strings.Join(response.Reply, "")
+	message := strings.Join(response.Reply, "\n")
 	//msg := discordgo.MessageSend{Content: message}
 	switch response.Target {
 	case TargetAdminChannel:
@@ -144,12 +144,12 @@ func (b *Bot) Connect() (e error) {
 		return Fatal(e, "Could not fetch user for session.")
 	}
 	b.user = user
+	return nil
+}
 
-	// Handle some commands with a router
+func (b *Bot) RouteCommands() {
 	b.cmd = CommandRouter{}
 	b.cmd.RegisterCommands(DrugCommands)
-
-	return nil
 }
 
 func NewBot(c BotConfig) *Bot {
