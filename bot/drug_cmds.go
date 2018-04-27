@@ -2,8 +2,9 @@ package drugcord
 
 import (
 	"fmt"
-	"github.com/somehibs/tripapi/api"
 	"strings"
+
+	"github.com/somehibs/tripapi/api"
 )
 
 var DrugCommands = map[string]Command{"drug": DrugCmd{DiscordFormatter{}}}

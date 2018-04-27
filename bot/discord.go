@@ -2,9 +2,10 @@ package drugcord
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"strings"
 	"unicode"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 type Bot struct {

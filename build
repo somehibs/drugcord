@@ -1,1 +1,1 @@
-gofmt -s -w . && echo "Building..." && go install && echo "Executing..." && drugcord
+goimports -e -l -w . && echo "Building..." && go install && echo "Executing..." && drugcord
