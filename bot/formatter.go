@@ -94,12 +94,12 @@ func FormatOneTable(name string, tables *map[string]map[string]string) (ret []st
 			}
 		}
 		if len(k) > largestItem {
-			columns = append(columns, Column{name: k, size: len(k)})
+			columns = append(columns, Column{name: k, size: len(k) + 2})
 		} else {
-			columns = append(columns, Column{name: k, size: largestItem})
+			columns = append(columns, Column{name: k, size: largestItem + 2})
 		}
 	}
-	columns[0].size = largestType
+	columns[0].size = largestType + 2
 	fmt.Printf("%s\n", largestType)
 	fmt.Printf("%s\n", columns)
 	oneLine := "```"

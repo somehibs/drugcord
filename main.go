@@ -26,7 +26,7 @@ func main() {
 		fmt.Printf("%s\n", err)
 	}
 	bot.RouteCommands()
-	_, e := testBot.Discord.ChannelMessageSend("334458647788912640", "!drug mdma")
+	_, e := testBot.Discord.ChannelMessageSend("334458647788912640", "!drug heroin")
 	if e != nil {
 		fmt.Printf("couldn't send using testbot %s\n", e)
 	}
