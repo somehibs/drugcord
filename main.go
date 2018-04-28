@@ -14,8 +14,8 @@ func main() {
 	// Load bot instance
 	var testBot *drugcord.Bot = nil
 	if testBotEnabled {
-		//		fmt.Println(strings.Join(drugcord.DiscordFormatter{}.FormatTableFields(tripapi.GetDrug("mdma")), "\n"))
-		//		panic("Okay.")
+		//fmt.Println(strings.Join(drugcord.DiscordFormatter{}.FormatTableFields(tripapi.GetDrug("heroin")), "\n"))
+		//panic("Okay.")
 		testBot = drugcord.NewBot(drugcord.GetConfByName("./testconfig.json"))
 		testBot.Connect()
 	}

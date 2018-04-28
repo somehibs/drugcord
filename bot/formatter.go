@@ -72,13 +72,18 @@ type Column struct {
 	size int
 }
 
+var allTypes = []string{"Threshold", "Light", "Common", "Strong", "Heavy"}
+var dxmTypes = []string{"First-Plateau", "Second-Plateau", "Third-Plateau", "Fourth"}
+
 func FormatOneTable(name string, tables *map[string]map[string]string) (ret []string) {
 	columns := []Column{Column{name, 0}}
 	largestType := 0
+	types := map[string]bool{}
 	for k, v := range *tables {
 		// k is title
 		largestItem := 0
 		for dataType, dataItem := range v {
+			types[dataType] = true
 			typeLen := len(dataType)
 			itemLen := len(dataItem)
 			if typeLen > largestType {
@@ -100,7 +105,7 @@ func FormatOneTable(name string, tables *map[string]map[string]string) (ret []st
 	oneLine := "```"
 	// Now, output all the column headers
 	for _, column := range columns {
-		oneLine += getColumn(column)
+		oneLine += getColumnC(column)
 	}
 	oneLine += "|"
 	ret = append(ret, oneLine)
@@ -109,7 +114,28 @@ func FormatOneTable(name string, tables *map[string]map[string]string) (ret []st
 	for _, column := range columns {
 		oneLine += getLinePiece(column.size)
 	}
-	oneLine += "|```"
+	oneLine += "|"
+	ret = append(ret, oneLine)
+	// Iterate over all the maps of values and output them
+	for _, t := range allTypes {
+		oneLine = ""
+		dataFound := false
+		for i, column := range columns {
+			m := (*tables)[column.name]
+			if i == 0 {
+				oneLine += getColumn(t, columns[i].size)
+			} else if types[t] == true {
+				// Fetch rows
+				oneLine += getColumn(m[t], columns[i].size)
+				dataFound = true
+			}
+		}
+		if dataFound {
+			oneLine += "|"
+			ret = append(ret, oneLine)
+		}
+	}
+	oneLine = "```"
 	ret = append(ret, oneLine)
 	return
 }
@@ -122,10 +148,12 @@ func getLinePiece(size int) (r string) {
 	return
 }
 
-func getColumn(column Column) string {
-	name := column.name
-	if len(name) < column.size {
-		sizeLess := column.size - len(name)
+func getColumnC(column Column) string {
+	return getColumn(column.name, column.size)
+}
+func getColumn(name string, size int) string {
+	if len(name) < size {
+		sizeLess := size - len(name)
 		prefix := sizeLess / 2
 		for i := 0; i < prefix; i += 1 {
 			name += " "
