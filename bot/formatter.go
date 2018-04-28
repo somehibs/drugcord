@@ -10,7 +10,7 @@ import (
 type Formattable interface {
 	Fields() *map[string]string
 	TableFields() *map[string]map[string]map[string]string
-	ComplexFields() *map[string]map[string]string
+	MultipleFields() *map[string][]string
 }
 
 // Define interfaces for formatters.
@@ -44,6 +44,9 @@ const kvFmt = "`%s` %s"
 func checkFirst(fields *map[string]string, names []string) (s string) {
 	for _, name := range names {
 		if (*fields)[name] != "" {
+			if s != "" {
+				s += "\n"
+			}
 			s += fmt.Sprintf(kvFmt, name, (*fields)[name])
 			delete(*fields, name)
 		}
@@ -56,6 +59,7 @@ func (df DiscordFormatter) FormatFields(f Formattable) (ret []string) {
 		return missingItem()
 	}
 	fields := *f.Fields()
+	complexFields := df.FormatComplexFields(f)
 	ret = append(ret, checkFirst(&fields, []string{"summary", "duration"}))
 	tf := df.FormatTableFields(f)
 	for _, v := range tf {
@@ -64,6 +68,7 @@ func (df DiscordFormatter) FormatFields(f Formattable) (ret []string) {
 	for k, v := range fields {
 		ret = append(ret, fmt.Sprintf(kvFmt, k, v))
 	}
+	ret = append(ret, complexFields...)
 	return
 }
 
@@ -152,15 +157,18 @@ func getColumnC(column Column) string {
 	return getColumn(column.name, column.size)
 }
 func getColumn(name string, size int) string {
+	if name == "" {
+		name = "-"
+	}
 	if len(name) < size {
 		sizeLess := size - len(name)
 		prefix := sizeLess / 2
 		for i := 0; i < prefix; i += 1 {
-			name += " "
+			name = " " + name
 		}
 		postfix := sizeLess - prefix
 		for i := 0; i < postfix; i += 1 {
-			name = " " + name
+			name = name + " "
 		}
 	}
 	return fmt.Sprintf("|%s", name)
@@ -173,9 +181,25 @@ func (df DiscordFormatter) FormatTableFields(f Formattable) (ret []string) {
 	return
 }
 
+func trim(s string) string {
+	return s[:len(s)-2]
+}
+
 func (df DiscordFormatter) FormatComplexFields(f Formattable) (ret []string) {
-	for k, v := range *f.ComplexFields() {
-		ret = append(ret, fmt.Sprintf("%s %s ", k, v))
+	for k, v := range *f.MultipleFields() {
+		sep := ", "
+		vt := trim(strings.Join(v, sep))
+		//if k == "categories" {
+		//	// Format like that
+		//	sep = "http://drugs.tripsit.me/category/"
+		//	vt = ""
+		//	for _, s := range v {
+		//		vt += sep + s + ", "
+		//	}
+		//	vt = trim(vt)
+		//}
+		// Format like this
+		ret = append(ret, fmt.Sprintf("`%s` %s ", k, vt))
 	}
 	return
 }
